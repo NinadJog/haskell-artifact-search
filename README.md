@@ -11,8 +11,21 @@ Given the grid cell locations of all the artifacts and the cell locations of all
 
 The grid's rows are numbered 1 to N while the columns are numbered by capital English letters: A, B, C... The address of a cell is specified as the row number followed by the column number, as in 3C, 2B, etc.
 
-Cell ranges are specified by their top left and bottom right cell addresses, spearated by a space. For example, "1B 2C" indicates the cells 1B, 1C, 2B, 2C as shown in the following figure.
+Cell ranges are specified by their top left and bottom right cell addresses, spearated by a space. For example, "1B 2C" indicates the cells 1B, 1C, 2B, 2C as shown in the following figure marked with 0. The artifact "2D 4D" consists of the three cells marked in the figure with 1.
 
+```
+    A   B   C   D
+  +---+---+---+---+
+1 |   | 0 | 0 |   |
+  +---+---+---+---+
+2 |   | 0 | 0 | 1 |
+  +---+---+---+---+
+3 |   |   |   | 1 |
+  +---+---+---+---+
+4 |   |   |   | 1 |
+  +---+---+---+---+
+
+```
 An artifact can occupy at most 4 contiguous cells. For example, "1B 2C" can be an artifact's cells, as can "3D 4D" (2 cells; horizontal), "5B 7B" (3 cells; vertical) and "4E 4E" (just 1 cell). But "1A 7A" cannot be an artifact because the range contains more than 4 cells.
 
 The artifact locations appear in a comma-separated order. For example, "3D 4D,1B 2C" are the cell ranges of two artifacts.
