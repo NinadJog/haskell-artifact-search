@@ -45,11 +45,10 @@ Given artifacts = "1B 2C,2D 4D" and searched = "3D 1C 2D 4A 4D", where the searc
   +---+---+---+---+
 4 | X |   |   | X |
   +---+---+---+---+
-
 ```
 ## Algorithm
 
-How do we go about solving this problem? First off, given a list of artifacts such as "1B 2C,2D 4D", what information can we extract? 
+How do we go about solving this problem? First off, given a list of artifacts such as "1B 2C,2D 4D", what information can we extract from it? 
 
 We can tell that it contains 2 artifacts, the first of which contains 4 cells (1B, 1C, 2B, 2C) and the second contains 3 (2D, 3D, 4D).  
 
@@ -76,9 +75,26 @@ Since we need to determine whether the search hits all cells of an artifact or j
                                 +------+-----------+
                                 |  4D  |     1     |
                                 +------+-----------+
-  
 ```
+We can afford to map each cell of an artifact to its artifact ID (such as "2D" -> 1) because each artifact contains a small number of cells -- at most 4. If it contained a large number -- say 10 or more -- this strategy would not be efficient. 
 
+What information can we extract from a searched string such as "3D 1C 2D 4A 4D"? For each cell in the searched string, we can try to get the artifact ID from the cell-to-artifact-id table that we created (the second table in the above figure) from the artifacts string.
+
+If there's an artifact under the searched cell, its artifact id will appear in the above table (for example, "3D"'s artifact ID is 1) but if it does not, the table lookup will fail (example: there's no artifact id for cell "4A"). If an artifact id is found, we should increment the searched count for that particular artifact, otherwise we do not have to do anything.
+
+We can therefore create a table similar to the first table above, mapping artifact ids to the number of searched cells. In this example the table would be as follows.
+```
+  +----------+-----------+ 
+  |          | Number of |
+  | Artifact | searched  |
+  |    ID    |   cells   |
+  +----------+-----------+
+  |     0    |     1     |
+  +----------+-----------+
+  |     1    |     3     |
+  +----------+-----------+ 
+```
+In the final step we can compare the two tables to see whether the counts match. Artifact 0 has 4 cells but only 1 of its cells was searched, so the *partial* count is 1. Artifact 1 had 3 cells and all of them were searched, so the *total* count is also 1. The final result is therfore the pair (1, 1).
  
 ## Solution
 
@@ -86,7 +102,9 @@ The Haskell solution presented here is the "happy-path" solution. It assumes tha
 
 Here's the happy-path solution: [ArtifactGrid.hs](ArtifactGrid.hs)
 
-In the future I plan to implement a "sad-path" solution which will handle errors and Maybes transparently using monads. The happy-path solution is a first attempt at getting the algorithm right. I'll keep the sad-path solution separate from the happy-path one so you can compare the two.
+In the future I plan to implement a "sad-path" solution in which the inputs to most functions will be checked for syntactic and semantic integrity and the result of the function will be Nothing if the check fails. In order to keep the error-checking and Maybe code under the covers without obscuring the program flow, we will use monads and do-notation.
+
+The happy-path solution is a first attempt at getting the algorithm right. I'll keep the sad-path solution separate from the happy-path one so you can compare the two.
 
 ## Implementation
 
