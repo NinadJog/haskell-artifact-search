@@ -32,7 +32,7 @@ The artifact locations appear in a comma-separated order. For example, "3D 4D,1B
 
 The list of searched cells is separated by a space, for example: "5B 4D 3D 5E 4E". The cells can appear in any order. Here's an example problem and its solution.
 
-Given artifacts = "1B 2C,2D 4D" and searched = "3D 1C 2D 4A 4D", where the searched cells are marked with an X in the following figure, it is obvious that all cells of the "2D 4D" artifact were searched whereas just one cell of the "1B 2C" artifact was searched. So the number of total searches is 1 and so is the number of partial searches. The answer is therefore the tuple (1, 1), corresponding to (total, partial). Note that the searched cell 4A does not play any role in either of the counts because it does not contain a part of any artifact.
+Given artifacts = "1B 2C,2D 4D" and searched = "3D 1C 2D 4A 4D", where the searched cells are marked with an X in the following figure, we can see that all cells of the "2D 4D" artifact were searched whereas just one cell of the "1B 2C" artifact was searched. So the number of total searches is 1 and so is the number of partial searches. The answer is therefore the pair (1, 1), corresponding to (total, partial). Note that the searched cell 4A does not play any role in either of the counts because it does not contain a part of any artifact.
 
 ```
     A   B   C   D
@@ -47,7 +47,39 @@ Given artifacts = "1B 2C,2D 4D" and searched = "3D 1C 2D 4A 4D", where the searc
   +---+---+---+---+
 
 ```
+## Algorithm
+
+How do we go about solving this problem? First off, given a list of artifacts such as "1B 2C,2D 4D", what information can we extract? 
+
+We can tell that it contains 2 artifacts, the first of which contains 4 cells (1B, 1C, 2B, 2C) and the second contains 3 (2D, 3D, 4D).  
+
+Should we store all of this information or is only some of it essential to computing the solution? In what type of data structure should we store it so its cell locations and artifact cell counts can be easily compared with the cells from the searched string to find the solution?
+
+Since we need to determine whether the search hits all cells of an artifact or just a few, we should store the count of the number of cells in each artifact. Since there can be several artifacts, we should also assign an id to each artifact, say an integer starting from 0. From the given list of artifacts, we can construct two tables: One mapping the artifact ID to the number of cells it contains and the other mapping each artifact's cell address to its artifact id, as shown below.
+
+```
+  +----------+----------+       +------+-----------+  
+  | Artifact |  Number  |       | Cell |  Artifact |
+  |    ID    | of cells |       |      |     ID    |
+  +----------+----------+       +------+-----------+
+  |     0    |     4    |       |  1B  |     0     |
+  +----------+----------+       +------+-----------+
+  |     1    |     3    |       |  1C  |     0     |
+  +----------+----------+       +------+-----------+
+                                |  2B  |     0     |
+                                +------+-----------+
+                                |  2C  |     0     |
+                                +------+-----------+
+                                |  2D  |     1     |
+                                +------+-----------+
+                                |  3D  |     1     |
+                                +------+-----------+
+                                |  4D  |     1     |
+                                +------+-----------+
   
+```
+
+ 
 ## Solution
 
 The Haskell solution presented here is the "happy-path" solution. It assumes that all functions have the correct input and that the artifacts and searched strings have the correct syntax and the ranges are valid ones.
@@ -55,14 +87,6 @@ The Haskell solution presented here is the "happy-path" solution. It assumes tha
 Here's the happy-path solution: [ArtifactGrid.hs](ArtifactGrid.hs)
 
 In the future I plan to implement a "sad-path" solution which will handle errors and Maybes transparently using monads. The happy-path solution is a first attempt at getting the algorithm right. I'll keep the sad-path solution separate from the happy-path one so you can compare the two.
-
-## Algorithm
-
-Given a list of artifacts such as "1B 2C,2D 4D", what information can we extract? 
-
-We can tell that it contains 2 artifacts, the first of which contains 4 cells (1B, 1C, 2B, 2C) and the second contains 3 (2D, 3D, 4D).  
-
-Should we store all of this information or is only some of it essential to computing the solution? In what kind of data structure should we store it so its cell locations and artifact cell counts can be compared easily with the cells from the searched string to find the solution?
 
 ## Implementation
 
